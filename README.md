@@ -10,7 +10,7 @@ Project:
     and implements social network sharing function by using Facebook JDK.
     
     
-2. Webpage (Java Script/PHP): 
+2. Weather Forecast Webpage (JavaScript/PHP/AJAX/JQuery): 
     Created a webpage that allows users to search weather information by addresses, 
     requesting PHP on AWS by making AJAX calls, 
     parsing XML to front-end and displaying in responsive UI.
