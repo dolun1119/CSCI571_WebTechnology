@@ -1,0 +1,186 @@
+body {
+    background-color: #E2E2E2;
+    font-family:"Trebuchet MS";
+    /* background & uniform font */
+}
+
+#content {
+    position:relative;
+    background-color: #E2E2E2;
+    margin:0 auto;
+    width:820px;
+    height:500px;
+
+}
+
+
+#sidetop {
+    position:absolute;
+    top:10px;
+    left:0px;
+    background-image: url(side_top.png);
+    width:226px;
+    height:46px;
+    /* side top DIV */
+}
+
+#sidemain {
+    position:absolute;
+    top:56px;
+    left:0px;
+    background-image: url(side_main.png);
+    background-repeat: repeat-y;
+    width: 226px;
+    height: 114px;
+    /* side main DIV */
+}
+
+#sidebottom {
+    position:absolute;
+    top:170px;
+    left:0px;
+    background-image: url(side_bottom.png);
+    width: 226px;
+    height: 46px;
+    font-size:12px;
+    /* side bottom DIV */
+}
+
+#header {
+    position:absolute;
+    top:10px;
+    left:238px;
+    background-image:url(header.png);
+    width:562px;
+    height:114px;
+    /* header DIV */
+}
+
+#section {
+    position:absolute;
+    top:124px;
+    left:238px;
+    background-color:#FFFFFF;
+    width:562px;
+    height:247px;
+    /* section DIV */
+}
+
+#footer {
+    position:absolute;
+    top:371px;
+    left:238px;
+    background-image:url(footer.png);
+    width:562px;
+    height:114px;
+    /* footer DIV */
+}
+
+
+#menu {
+    color:#000000;
+    font-size: 25px;
+    font-weight:bolder;
+    text-align: right;
+    line-height: 0px;
+    padding: 0px 19px;
+    margin-top: 25px;
+    /* Side Top text */
+}   
+
+#sidelink{
+    font-size: 16px;
+    font-weight:bolder;
+    text-align:right;
+    line-height: 3px;
+    padding: 0px 19px;
+    margin-top: 10px;
+    /* Side Main text */
+}
+
+A.class1:link  {text-decoration: none; color:#666666;}
+A.class1:visited {text-decoration: none; color:#666666;}
+A.class1:hover {text-decoration: none; color:blue;}
+A.class1:active {text-decoration: none; color:#333333;}
+    /* All link color */
+
+p.apple span{
+    color:#000000;
+    /* different colors in appleinside */
+}
+
+#appleinsider {
+    color:#999999;
+    font-size: 31px;
+    font-weight:bolder;
+    text-align:left;
+    line-height: 0px;
+    margin-top: 28px;
+    margin-left: 10px;
+    /* appleinside text */
+}   
+
+#todaysheadline {
+    color:#CCCCCC;
+    font-size: 19px;
+    font-weight:bolder;
+    text-align:right;
+    line-height: 0px;
+    margin-top: -2px;
+    margin-right: 40px;
+    /* todaysheadline text */
+}
+
+#sectiontitle1 {
+    color:#333333;
+    font-size: 21px;
+    font-weight:bolder;
+    text-align:left;
+    margin-left: 8px;
+    margin-top: 0px;
+    /* section title1 text */
+}
+
+#sectioncontent1 {
+    color:#000000;
+    font-size: 13px;
+    text-align:left;
+    margin-left: 8px;
+    margin-top: -12px;
+    margin-right: 19px;
+    /* section content1 text */
+}
+
+#sectiontitle2 {
+    color:#333333;
+    font-size: 21px;
+    font-weight:bolder;
+    text-align:left;
+    margin-left: 8px;
+    margin-top: 33px;
+    
+    /* section title2 text */
+}
+
+#sectioncontent2 {
+    color:#000000;
+    font-size: 13px;
+    text-align:left;
+    margin-left: 8px;
+    margin-right: 20px;
+    margin-top: -15px;
+    /* section content2 text */
+}
+
+#footerlink {
+    font-size: 13px;
+    font-weight:bolder;
+    text-align:right;
+    line-height: 3px;
+    margin-top: 76px;
+    margin-right: 72px;
+    /* footer link text */
+}
+
+
+

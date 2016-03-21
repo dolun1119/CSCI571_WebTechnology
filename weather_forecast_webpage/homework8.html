@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forecast Search</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" type="text/css" href="bootstrap-3.3.5-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="http://openlayers.org/api/OpenLayers.js"></script>  
+    <script src="bootstrap-3.3.5-dist/js/jquery-2.1.4.js"></script>
+    
+<style>
+/*background-image*/    
+    body {
+    background: url("http://cs-server.usc.edu:19402/pic/bg.jpg") no-repeat  fixed;
+    -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;}
+/*input form*/  
+    #section {background-color:rgba(0,0,0,0.15); margin: 0 auto; width: 80%; padding: 5px 10px 0px 10px;}
+/*input form text*/   
+    #addInput, #cityInput, #stateInput, #star {color: red;}
+/*input form text*/
+    .control-label, #radioInput, #power {color: white;} 
+/*tab style*/   
+    #tabs {margin: 0 auto; width: 80%;} 
+    .nav-tabs > li > a {background-color:#EEEEEE; color:#3071A9;}
+    .nav-tabs > li > a:hover {background-color:#3071A9; color:#FFFFFF;}
+    .nav-tabs > li.active > a:focus {background-color: #3071A9; color: #FFFFFF; cursor: default; border-bottom-color: #FFFFFF;}
+    .nav-tabs > li.active > a {background-color: #3071A9; color: #FFFFFF; cursor: default; border-bottom-color: #FFFFFF;}
+/*horizontal*/   
+    hr {width: 80%;}   
+/*now-tab*/
+    .sup { position: relative; bottom: 4ex; color: white;}
+    #now {background-color:#F17D7E; color: white;}
+    #now1 {background-color:#F8F8F8; color:black; height:30px;}
+    #now2 {background-color:#F2DEDE; color:black; height:30px;}
+    .nt {height:175px;}
+    .nowp1 { margin-top: 10px;}
+    .fbp { margin-right: -5px;}
+    .bigtemp{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 60px; font-weight: 600;}
+    .bigdeg { margin-top: 15px; font-size: 20px;}
+/*map*/
+    #basicMap {border-width: 3px; border-style: solid; border-color: white; height:415px;}
+/*row padding problem*/
+    .row {.make-row();}
+ Creates a wrapper for a series of columns
+    .make-row(@gutter: @grid-gutter-width) {
+        margin-left:  (@gutter / -2);
+        margin-right: (@gutter / -2);
+        &:extend(.clearfix all);       
+    }
+/*24hours tab*/
+    .header24 {background-color: #3071A9; color:white; font-weight: bold;}
+    .line24 {background-color: white; border-top: 1px solid #E6E6E6;}
+    .linespace {background-color: white;}
+    .well {background-color: #F0F0F0;}
+    .inner {background-color: white;font-weight: bold;}
+/*weekday-tab*/
+    .week {width: 100%; margin: 0 auto; height: 360px;}
+    .weekd, .wkimg{margin-left: -10px;}
+    .btn {text-align: center; border: 0px;}
+    .btn1 {background-color:#367DB5; }
+    .btn2 {background-color:#EC4444; }
+    .btn3 {background-color:#E68E4F; }
+    .btn4 {background-color:#A7A439; }
+    .btn5 {background-color:#9770A7; }
+    .btn6 {background-color:#F37C7E; }
+    .btn7 {background-color:#CE4571; }
+    .noPadding { margin-right: 0px; margin-left: 0px; padding-left: 0px; margin-top: 8px; margin-bottom: 15px;}
+    .lg{background-color: #2F3439; margin: 0 auto; width:80%; height:380px; position:absolute; top:306px;}
+</style>
+
+<script>
+//check input
+    function checkEmpty() {        
+        var errorAlert ="";
+        document.getElementById("addInput").innerHTML = "";
+        document.getElementById("cityInput").innerHTML = "";
+        document.getElementById("stateInput").innerHTML = "";
+        if (document.getElementsByName("address")[0].value != "") {
+            document.getElementsByName("address")[0].value = document.getElementsByName("address")[0].value.trim();   
+        }
+        if (document.getElementsByName("city")[0].value != "") {    
+            document.getElementsByName("city")[0].value = document.getElementsByName("city")[0].value.trim();
+        }
+        if (document.getElementsByName("address")[0].value == "") {
+            document.getElementById("addInput").innerHTML = "Please enter the street address";
+            errorAlert += "No address!\n\n";
+        }
+        if (document.getElementsByName("city")[0].value == "") {    
+            document.getElementById("cityInput").innerHTML = "Please enter the city";
+            errorAlert += "No City!\n\n";
+        }
+        if (document.form.state.value == "selectyourstate") {
+            document.getElementById("stateInput").innerHTML = "Please select a state";
+            errorAlert += "No state!\n\n";
+        }
+        if (errorAlert =="") {
+            requestJson();
+            return true;
+        }
+        else {return false;}
+    }
+//refresh data    
+    function refresh() {
+        document.getElementById("addInput").innerHTML = "";
+        document.getElementById("cityInput").innerHTML = "";
+        document.getElementById("stateInput").innerHTML = "";
+        document.getElementsByName("address")[0].value = "";
+        document.getElementsByName("city")[0].value = "";
+        document.form.state.value = "selectyourstate";
+        document.getElementById("temp1").checked = true;      
+        document.getElementById("qoo").innerHTML = "";
+    }    
+//get json file from php   
+    function requestJson() {
+        var addr = document.getElementsByName("address")[0].value;
+        var city = document.getElementsByName("city")[0].value;
+        var state = document.form.state.value;
+        var temp = "";
+        if (document.getElementById("temp1").checked == true) {
+            temp = "us";
+        }
+        else { temp = "si"; }
+        var queryString = "?addr=" + addr;
+            queryString += "&city=" + city + "&state=" + state + "&temp=" + temp;  
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                json = xmlhttp.responseText;
+                obj = JSON.parse(json);
+                write(obj);
+                init(obj);
+            }
+        }
+        xmlhttp.open("GET", "hw8.php" + queryString, true);
+        xmlhttp.send();
+    }
+    
+//write data    
+    function write(obj) {
+        var doc ="";
+//write tab
+        doc += "<div id='tabs'  class='row'>";
+        doc += "<ul class='nav nav-tabs' role='tablist'>";
+        doc +=      "<li role='presentation' class='active'><a href='#home' aria-controls='home' role='tab' data-toggle='tab'>Right Now</a></li>";
+        doc +=      "<li role='presentation'><a href='#profile' aria-controls='profile' role='tab' data-toggle='tab'>Next 24 Hours</a></li>";
+        doc +=      "<li role='presentation'><a href='#messages' aria-controls='messages' role='tab' data-toggle='tab'>Next 7 Days</a></li>";
+        doc += "</ul>";
+//tab content
+        doc += "<div class='tab-content'>";
+//<!--RIGHTNOW-->
+        doc +=      "<div role='tabpanel' class='tab-pane active' style ='width:100%;' id='home'>";
+        doc +=          "<div id='nowtemp' class='col-md-6'>";
+        //padding
+        doc += "<div class='row'>";
+        doc +=              "<div id='now' class='col-md-12'>";
+        //padding
+        doc += "<div class='row'>";
+        var curSum = obj.currently.summary;
+        var city = document.getElementsByName("city")[0].value;
+        var state = document.form.state.value;
+        var offset = obj.offset;
+        stateFb = document.form.state.value;
+        cityFb = document.getElementsByName("city")[0].value;
+        sumFb = obj.currently.summary;
+        tempFb = Math.round(obj.currently.temperature) + deg();
+        picFb = iconImage(obj.currently.icon);
+        doc +=                  "<div class='col-md-6 nt'><div class='nowp1'><p style='text-align:center'><img src='" + iconImage(obj.currently.icon) +"' width='150' alt='" + curSum + "' title='" + curSum + "'></p></div></div>";
+        doc +=                  "<div class='col-md-6 nt'><table style='width:100%'><tr><td colspan='2' align='center' height='8'><b>" + curSum + " in " + city + ", " + state + "</b><p></p></td></tr>";
+        doc +=                  "<tr><td class='bigtemp' align='right' height='70' width='30%'>" + Math.round(obj.currently.temperature) + "</td><td align='left' valign='top'><div class='bigdeg'>" + deg() + "</div></td></tr>";
+        doc +=                  "<tr><td align='right' width='58%' height='40' valign='bottom'><font color='blue'>L: " + Math.round(obj.daily.data[0].temperatureMin) + "&deg; </font>";
+        doc +=                  "<font color='black'>&#124; </font>";
+        doc +=                  "<font color='#008000'>H: " + Math.round(obj.daily.data[0].temperatureMax) + "&deg; </font>";
+        doc +=                          "</td><td valign='bottom' align='right'><div class='fbp'><input type='image' src='http://cs-server.usc.edu:19402/pic/fb_icon.png' width='48' onclick='fbshare()'></div></td></tr></table>";
+        doc +=                  "</div>";
+        //padding
+        doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";
+        doc +=                  "<tr id='now1'><td width='60%'>&nbsp;&nbsp;Precipitation</td><td>" + precipInt(obj.currently.precipIntensity) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";
+        doc +=                  "<tr id='now2'><td width='60%'>&nbsp;&nbsp;Chance of Rain</td><td>" + percent(obj.currently.precipProbability) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";        
+        doc +=                  "<tr id='now1'><td width='60%'>&nbsp;&nbsp;Wind Speed</td><td>" + wspeed(obj.currently.windSpeed) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";        
+        doc +=                  "<tr id='now2'><td width='60%'>&nbsp;&nbsp;Dew Point</td><td>" + dew(obj.currently.dewPoint) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";
+        doc +=                  "<tr id='now1'><td width='60%'>&nbsp;&nbsp;Humidity</td><td>" + percent(obj.currently.humidity) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";        
+        doc +=                  "<tr id='now2'><td width='60%'>&nbsp;&nbsp;Visibility</td><td>" + vis(obj.currently.visibility) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";        
+        doc +=                  "<tr id='now1'><td width='60%'>&nbsp;&nbsp;Sunrise</td><td>" + timeFormat(obj.daily.data[0].sunriseTime,offset) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";
+        doc +=              "<div class='col-md-12'>";
+                doc += "<div class='row'>";
+        doc +=                  "<table width='100%'>";
+        doc +=                  "<tr id='now2'><td width='60%'>&nbsp;&nbsp;Sunset</td><td>" + timeFormat(obj.daily.data[0].sunsetTime,offset) + "</td></tr>";
+        doc +=                  "</table>";
+                doc +="</div>";
+        doc +=              "</div>";        
+        //padding
+        doc +="</div>";
+        doc +=          "</div>";
+//<!--map    -->
+        doc +=          "<div id='basicMap' class='col-md-6'></div>";
+        doc += "<br><br><br><br><br><br>";
+        doc +=      "</div>";
+        
+//<!--24HOURS-->
+        doc += "<div role='tabpanel' class='tab-pane'id='profile'>";
+        doc += "<table width='100%' align='center'>";         
+        doc +=      "<tr class='header24' align='center'>";
+        doc +=      "<td width='20%'>Time</td><td width='20%'>Summary</td><td width='20%'>Cloud Cover</td><td width='20%'>Temp &#40;" + deg2() + "&#41;</td><td>View Details</td></tr>";
+        doc +=      "<tr><td colspan='5' class='linespace'><br></td></tr>";
+        var sumh ="";
+    for (i=0; i<24; i++) {    
+        doc +=      "<tr align='center' class='line24' height='45'>";
+        doc +=      "<td>" + timeFormat(obj.hourly.data[i].time,offset) + "</td>";
+        sumh = obj.hourly.data[i].summary;
+        doc +=      "<td><img src='" + iconImage(obj.hourly.data[i].icon) + "' width='30' alt='" + sumh + "' title='" + sumh + "'></td>";
+        doc +=      "<td>" + percent(obj.hourly.data[i].cloudCover) + "</td>";
+        doc +=      "<td>" + obj.hourly.data[i].temperature + "</td>";
+        doc +=      "<td><div><a data-toggle='collapse' href='#collapseExample" + i + "' aria-expanded='false' aria-controls='collapseExample" + i + "'><span class='glyphicon glyphicon-plus' aria-hidden='true'></span></a></div></td></tr>";
+        doc +=      "<tr><td colspan='5' class='linespace'><br>";
+        doc +=          "<div class='collapse' id='collapseExample" + i + "'>";
+        doc +=              "<div class='well'>";
+        doc +=                  "<table class='table table-responsive' align='center'>";
+        doc +=                      "<tr align='center' class='inner'>";
+        doc +=                      "<td width='25%'>Wind</td>";
+        doc +=                      "<td width='25%'>Humidity</td>";
+        doc +=                      "<td width='25%'>Visibility</td>";
+        doc +=                      "<td>Pressure</td></tr>";
+        doc +=                      "<tr align='center'>";
+        doc +=                      "<td>" + wspeed2(obj.hourly.data[i].windSpeed) +"</td>";
+        doc +=                      "<td>" + percent(obj.hourly.data[i].humidity) + "</td>";
+        doc +=                      "<td>" + vis2(obj.hourly.data[i].visibility) +"</td>";
+        doc +=                      "<td>" + pressure2(obj.hourly.data[i].pressure) + "</td></tr>";
+        doc +=                  "</table><br>";
+        doc +=                  "</div>";
+        doc +=              "</div>";
+        doc +=          "</td></tr>";
+    }  
+//table end  
+        doc += "</table><br><br><br></div>";
+//<!--7DAYS-->
+        doc += "<div role='tabpanel' class='tab-pane' id='messages'>"; 
+        var wtime ="";
+        var wsum ="";
+        doc +=  "<div class='row week'>";
+        doc +=      "<div class='col-md-2'></div>";
+         doc += "<div class='visible-lg visible-md lg'></div>";
+    for (i=1; i<8; i++) {
+        doc +=      "<div class='col-md-1 noPadding'>";
+        doc +=          "<button type='button' style='width: 100%; height:80%;' class='btn btn-info btn" + i + "' data-toggle='modal' data-target='#myModal" + i + "'>";
+        wtime = obj.daily.data[i].time;
+        doc +=              "<span class='weekd'><b>" + weekday(wtime,offset) + "</b><p></p>";
+        doc +=              "<b>" + toMonth(wtime,offset) + monthday(wtime,offset) + "</b><p></p>";
+        wsum = obj.daily.data[i].summary;
+        doc +=              "<img src='" + iconImage(obj.daily.data[i].icon) + "' width='70' alt='" + wsum + "' title='" + wsum + "' class='wkimg'><br>";
+        doc +=              "Min<br>Temp<p><p style='font-size: 30px;'>" + Math.round(obj.daily.data[i].temperatureMin) + "&deg;</p>";
+        doc +=              "Max<br>Temp<p></p><p style='font-size: 30px;'>" + Math.round(obj.daily.data[i].temperatureMax) + "&deg;</p>";
+        doc +=              "</span></button>";
+//modal
+        doc +=          "<div class='modal fade' id='myModal" + i + "' role='dialog'>";
+        doc +=              "<div class='modal-dialog'>";
+        doc +=                  "<div class='modal-content'>";
+        doc +=                      "<div class='modal-header'>";
+        doc +=                          "<button type='button' class='close' data-dismiss='modal'>&times;</button>";
+        doc +=                          "<h3 class='modal-title'>" + "Weather in " + city + " on " + toMonth(wtime,offset) + " " + monthday(wtime,offset) + "</h3>";
+        doc +=                      "</div>";
+        doc +=                      "<div class='modal-body'>";
+        doc +=                          "<div class='col-md-12'><p style='text-align:center'>";
+        doc +=                          "<img src='" + iconImage(obj.daily.data[i].icon) + "' width='200' alt='" + wsum + "' title='" + wsum + "'></p>";
+        doc +=                      "</div>";
+        doc +=                          "<div class='col-md-12'><h3><center>" + weekday(wtime,offset) + ": <font color='#FFA500'>" + obj.daily.data[i].summary + "</font></center></h2>";
+        doc +=                          "</h3></div>";
+        doc +=                          "<div class='row'>";
+        doc +=                              "<div class='col-md-4'>";
+        doc +=                                  "<center><h4>Sunrise Time</h4><p>" + timeFormat(obj.daily.data[i].sunriseTime,offset) + "</p></center>";
+        doc +=                              "</div>";
+        doc +=                              "<div class='col-md-4'>";
+        doc +=                                  "<center><h4>Sunset Time</h4><p>" + timeFormat(obj.daily.data[i].sunsetTime,offset) + "</p></center>";
+        doc +=                              "</div>";
+        doc +=                              "<div class='col-md-4'>";
+        doc +=                                  "<center><h4>Humidity</h4><p>" + percent(obj.daily.data[i].humidity) + "</p></center>";
+        doc +=                              "</div>";        
+        doc +=                          "</div>";
+        doc +=                          "<div class='row'>";
+        doc +=                              "<div class='col-md-4'>";
+        doc +=                                  "<center><h4>Wind Speed</h4><p>" + wspeed2(obj.daily.data[i].windSpeed) + "</p></center>";
+        doc +=                              "</div>";
+        doc +=                              "<div class='col-md-4'>";
+        doc +=                                  "<center><h4>Visibility</h4><p>" + vis2(obj.daily.data[i].visibility) + "</p></center>";
+        doc +=                              "</div>";
+        doc +=                              "<div class='col-md-4'>";
+        doc +=                                  "<center><h4>Pressure</h4><p>" + pressure2(obj.daily.data[i].pressure) + "</p></center>";
+        doc +=                              "</div>";        
+        doc +=                          "</div>";
+        doc +=                      "</div>";
+        doc +=                      "<div class='modal-footer'>";
+        doc +=                          "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>";
+        doc +=                      "</div>";
+        doc +=                  "</div>";
+        doc +=              "</div>";
+        doc +=          "</div>";
+        doc += "</div>";
+    }
+        doc +=         "<div class='col-md-3'></div>";            
+        doc +=      "</div>";  
+//7days end
+        doc += "</div>";
+//tab content end
+        doc += "</div>";
+//tab end
+        doc += "</div>";   
+//write down HTML            
+        document.getElementById("qoo").innerHTML = doc;    
+    }
+    
+//return temp with unit
+    function deg() {   
+        if (document.getElementById("temp1").checked == true) {return "&deg;&nbsp;F";}
+        else {return "&deg;&nbsp;C";}
+    }
+//return temp with unit no space
+    function deg2() {   
+        if (document.getElementById("temp1").checked == true) {return "&deg;F";}
+        else {return "&deg;C";}
+    }
+//convert precipIntensity value to Precipitation
+    function precipInt(pre) {
+        if (pre >= 0 && pre < 0.002) { return "None";}
+        else if (pre >= 0.002 && pre < 0.017) { return "Very Light"; }
+        else if (pre >= 0.017 && pre < 0.1) { return "Light"; }
+        else if (pre >= 0.1 && pre < 0.4) { return "Moderate"; }
+        else if (pre >= 0.4) { return "Heavy"; }   
+    }
+//convert precipProbability & humidity & Cloud cover value to ? %   
+    function percent(pro) { return Math.round(pro * 100) + "%"; }
+//return windspeed with unit
+    function wspeed(data) {  
+        if (document.getElementById("temp1").checked == true) {return data.toFixed(2) + "&nbsp;mph";}
+        else {return data.toFixed(2) + "&nbsp;m&#47;s";}
+    }
+//return windspeed with unit no space
+    function wspeed2(data) {  
+        if (document.getElementById("temp1").checked == true) {return data.toFixed(2) + "mph";}
+        else {return data.toFixed(2) + "m&#47;s";}
+    }
+    function pressure(data) {  
+        if (document.getElementById("temp1").checked == true) {return data + "&nbsp;mb";}
+        else {return data + "&nbsp;hPa";}
+    }
+    function pressure2(data) {  
+        if (document.getElementById("temp1").checked == true) {return data + "mb";}
+        else {return data + "hPa";}
+    }
+//return visibility with unit
+    function vis(data) {  
+        if (document.getElementById("temp1").checked == true) {return data.toFixed(2) + "&nbsp;mi";}
+        else {return data.toFixed(2) + "&nbsp;km";}
+    }
+    function vis2(data) {
+        if (typeof(data) == "undefined") { return "N.A.";}
+        else if (document.getElementById("temp1").checked == true) {return data.toFixed(2) + "mi";}
+        else {return data.toFixed(2) + "km";}
+    }
+//return dew point with unit
+    function dew(data) {  
+        if (document.getElementById("temp1").checked == true) {return data.toFixed(2) + "&deg;&nbsp;F";}
+        else {return data.toFixed(2) + "&deg;&nbsp;C";}
+    }
+//convert UNIX time to XX:XX AM  
+    function timeFormat(data,offset) {
+        var date = new Date((data+offset*3600) * 1000);
+        var hh = date.getUTCHours();
+        var ampm ="";
+        if (hh >=12) {
+            hh -= 12;
+            ampm = " PM";
+        }
+        else {ampm = " AM";}
+        if (hh < 10) {
+            hh = "0" + hh;
+        }
+        var mm = date.getUTCMinutes();
+        if (mm < 10) {
+            mm = "0" + mm;
+        }
+        var ss = date.getUTCSeconds();
+        return hh + ":" + mm + ampm;
+    }
+//convert UNIX time to shorthand notation month  
+    function toMonth(data,offset) {
+        var d = new Date((data+offset*3600) * 1000);
+        var month = new Array();
+        month[0] = "Jan";
+        month[1] = "Feb";
+        month[2] = "Mar";
+        month[3] = "Apr";
+        month[4] = "May";
+        month[5] = "Jun";
+        month[6] = "Jul";
+        month[7] = "Aug";
+        month[8] = "Sept";
+        month[9] = "Oct";
+        month[10] = "Nov";
+        month[11] = "Dec";       
+        return month[d.getUTCMonth()];
+    }
+//convert UNIX time to ? day
+    function weekday(data,offset) {
+        var d = new Date((data+offset*3600) * 1000);
+        var weekday = new Array(7);
+        weekday[0]=  "Sunday";
+        weekday[1] = "Monday";
+        weekday[2] = "Tuesday";
+        weekday[3] = "Wednesday";
+        weekday[4] = "Thursday";
+        weekday[5] = "Friday";
+        weekday[6] = "Saturday";
+        return weekday[d.getUTCDay()];
+    }
+//convert UNIX time to ? date
+    function monthday(data,offset) {
+        var d = new Date((data+offset*3600) * 1000);
+        return d.getUTCDate();
+    }
+//convert icon to img url
+    function iconImage(icon) {     
+        if (icon == "clear-day") {
+            return "http://cs-server.usc.edu:19402/pic/clear.png";
+        }
+        else if (icon == "clear-night") {
+            return "http://cs-server.usc.edu:19402/pic/clear_night.png";
+        }
+        else if (icon == "rain") {
+            return "http://cs-server.usc.edu:19402/pic/rain.png";
+        }
+        else if (icon == "snow") {
+            return "http://cs-server.usc.edu:19402/pic/snow.png";
+        }
+        else if (icon == "sleet") {
+            return "http://cs-server.usc.edu:19402/pic/sleet.png";
+        }
+        else if (icon == "wind") {
+            return "http://cs-server.usc.edu:19402/pic/wind.png";
+        }
+        else if (icon == "fog") {
+            return "http://cs-server.usc.edu:19402/pic/fog.png";
+        }
+        else if (icon == "cloudy") {
+            return "http://cs-server.usc.edu:19402/pic/cloudy.png";
+        }
+        else if (icon == "partly-cloudy-day") {
+            return "http://cs-server.usc.edu:19402/pic/cloud_day.png";
+        }
+        else if (icon == "partly-cloudy-night") {
+            return "http://cs-server.usc.edu:19402/pic/cloud_night.png";
+        }
+        else {
+            return "NA";
+        }
+    }
+//fb api
+window.fbAsyncInit = function() {
+    FB.init({
+        appId      : '917840581635573',
+        xfbml      : true,
+        version    : 'v2.5'
+    });
+};
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+//fbshare
+function fbshare(obj){   
+    FB.ui({
+        method: 'feed',
+        link: 'http://forecast.io/',
+        caption: 'WEATHER INFOMATION FROM FORCAST.IO',
+        display: 'dialog',
+        name: 'Current Weather in ' + cityFb + ', ' + stateFb,
+        picture: picFb,
+        description: sumFb + ' , ' + tempFb,
+    }, 
+//callback
+        function(response){
+            if (response && !response.error_message) {
+                alert('Posted Successfully');
+            } 
+            else {
+                alert('Not Posted');
+            }
+        }
+    );    
+}
+//MAP initialization     
+    function init(obj) {
+        var lat = obj.latitude;
+        var lon = obj.longitude;
+        var map = new OpenLayers.Map("basicMap");
+        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+        var position       = new OpenLayers.LonLat(lon,lat).transform( fromProjection, toProjection);
+    // Create OSM overlays
+        var mapnik = new OpenLayers.Layer.OSM();
+        var layer_cloud = new OpenLayers.Layer.XYZ(
+        "clouds","http://${s}.tile.openweathermap.org/map/clouds/${z}/${x}/${y}.png",
+            {
+                isBaseLayer: false,
+                opacity: 0.7,
+                sphericalMercator: true
+            }
+        );
+        var layer_precipitation = new OpenLayers.Layer.XYZ(
+        "precipitation",
+        "http://${s}.tile.openweathermap.org/map/precipitation/${z}/${x}/${y}.png",
+            {
+                isBaseLayer: false,
+                opacity: 0.7,
+                sphericalMercator: true
+            }
+        );
+        map.addLayers([mapnik, layer_precipitation, layer_cloud]);
+        map.setCenter( position , 5 );
+//        map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
+    }
+    
+</script>    
+</head>
+<body>
+
+<h2 align="center">Forecast Search</h2><br>
+<div id="col-md-12">
+<div id="section">
+<form name="form" class="form-inline">
+    <div class="form-group" style="vertical-align: top; margin-top: 5px;" >
+        <label for="name" class="control-label">Street Address: <span id="star">*</span></label><br>
+        <input type="text" size="38" name="address" class="form-control" id="addr" placeholder="Enter street address"><br><span id="addInput"></span>
+    </div>
+    <div class="form-group" style="vertical-align: top; margin-top: 5px;">
+        <label for="name" class="control-label">City: <span id="star">*</span></label><br>
+        <input type="text" size="20" name="city" class="form-control" id="city" placeholder="Enter the city name">
+        <br><span id="cityInput"></span>
+    </div>
+    <div class="form-group" style="vertical-align: top; margin-top: 5px;">
+        <label for="name" class="control-label">State: <span id="star">*</span></label><br>
+        <select id="myselect" name="state" class="form-control">
+            <option value="selectyourstate">Select your state...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+            <option value="AL">Alabama</option>
+            <option value="AK">Alaska</option>
+            <option value="AZ">Arizona</option>
+            <option value="AR">Arkansas</option>
+            <option value="CA">California</option>
+            <option value="CO">Colorado</option>
+            <option value="CT">Connecticut</option>
+            <option value="DE">Delaware</option>
+            <option value="FL">Florida</option>
+            <option value="GA">Georgia</option>
+            <option value="HI">Hawaii</option>
+            <option value="ID">Idaho</option>
+            <option value="IL">Illinois</option>
+            <option value="IN">Indiana</option>
+            <option value="IA">Iowa</option>
+            <option value="KS">Kansas</option>
+            <option value="KY">Kentucky</option>
+            <option value="LA">Louisiana</option>
+            <option value="ME">Maine</option>
+            <option value="MD">Maryland</option>
+            <option value="MA">Massachusetts</option>
+            <option value="MI">Michigan</option>
+            <option value="MN">Minnesota</option>
+            <option value="MS">Mississippi</option>
+            <option value="MO">Missouri</option>
+            <option value="MT">Montana</option>
+            <option value="NE">Nebraska</option>
+            <option value="NV">Nevada</option>
+            <option value="NH">New Hampshire</option>
+            <option value="NJ">New Jersey</option>
+            <option value="NM">New Mexico</option>
+            <option value="NY">New York</option>
+            <option value="NC">North Carolina</option>
+            <option value="ND">North Dakota</option>
+            <option value="OH">Ohio</option>
+            <option value="OK">Oklahoma</option>
+            <option value="OR">Oregon</option>
+            <option value="PA">Pennsylvania</option>
+            <option value="RI">Rhode Island</option>
+            <option value="SC">South Carolina</option>
+            <option value="SD">South Dakota</option>
+            <option value="TN">Tennessee</option>
+            <option value="TX">Texas</option>
+            <option value="UT">Utah</option>
+            <option value="VT">Vermont</option>
+            <option value="VA">Virginia</option>
+            <option value="WA">Washington</option>
+            <option value="WV">West Virginia</option>
+            <option value="WI">Wisconsin</option>
+            <option value="WY">Wyoming</option>
+        </select>
+        <br><span id="stateInput"></span>
+    </div>&nbsp;
+    <div class="form-group" style="vertical-align: top; margin-top: 5px;">
+        <label class="control-label">Degree: <span id="star">*</span></label><br>
+        <input type="radio" name="temp" id="temp1" value="fahrenheit" checked><span id="radioInput">&nbsp;&nbsp;Fahrenheit&nbsp;</span>
+        <input type="radio" name="temp" id="temp2" value="celsius"><span id="radioInput">&nbsp;&nbsp;Celsius&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    </div>
+    <div class="form-group" style="vertical-align: top; margin-top: 5px;" align="right"><br>
+    <button style="width:85px;" type="button" class="btn btn-primary" name="submit" onclick="return checkEmpty()">
+    <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
+    </button>
+    <button style="width:85px;" type="button" class="btn btn-default" onclick="refresh()">
+    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Clear
+    </button>
+    <br><br>
+    <div style="vertical-align: top;">
+    <span id="power">Powered by: </span><a href="http://forecast.io/">
+    <img src="http://cs-server.usc.edu:19402/pic/forecast_logo.png" alt="forecast.io" title="forecast.io" id="logo" width="90">
+    </a>&nbsp;
+    </div>
+    </div>
+</form><br>
+</div>
+</div>
+<div id="col-md-12"><hr></div>
+<div id="col-md-12"><span id="qoo"></span></div>
+
+<!--
+TEST CODE
+    <button type="button" class="btn btn-default" onclick="fbshare()">Test</button>
+    <button type="button" class="btn btn-default" onclick="init()">map</button>
+    <div><span id="qoo3"><h1>yoyoyo</h1></span></div>
+-->
+</body>
+</html>

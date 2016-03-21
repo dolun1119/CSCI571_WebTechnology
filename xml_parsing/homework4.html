@@ -1,0 +1,134 @@
+<html><head><meta http-equiv="Content-Type"; content="text/html"; charset="utf-8">
+<title>XML Exercise</title>
+<script>
+
+function generateHTML(xmlDoc)
+{    
+    ELEMENT_NODE = 1;  // MS parser doesn't define Node.ELEMENT_NODE
+    root = xmlDoc.DocumentElement;
+    html_text = "<html><head><title>XML Parse Result</title></head><body>"; 
+    html_text += "<table border = '1'>";
+    header = xmlDoc.getElementsByTagName("Header")[0].childNodes;
+    html_text += "<tr>";
+    for(i = 0; i < header.length; i ++) //write i headers    
+    {
+        if(header[i].nodeType == ELEMENT_NODE) //only count element node.
+        {
+            html_text += "<th>" + header[i].firstChild.nodeValue + "</th>";
+        }
+    }
+    html_text += "</tr>";
+    rowLength = xmlDoc.getElementsByTagName("Row").length;
+    for(i = 0; i < rowLength; i ++) //table has i rows.  
+    {
+        column = xmlDoc.getElementsByTagName("Row")[i].childNodes;
+        html_text += "<tr>";
+        for(j = 0; j < column.length; j ++) //every row has j columns.
+        {
+            if(column[j].nodeType == ELEMENT_NODE)
+            {   
+                if(column[j].nodeName == "Feeds") //Feeds may have k items.
+                {
+                    html_text += "<td><ul>"; //add dot before items.
+                     //length = 1 when no feed tags
+                    for (k = 1; k < column[j].childNodes.length; k ++)
+                    {
+                        if(column[j].childNodes[k].nodeType == ELEMENT_NODE)
+                        {
+                            html_text += "<li>";
+                            html_text += column[j].childNodes[k].firstChild.nodeValue;
+                            html_text += "<br>";
+                        }
+                    }
+                    html_text += "</ul></td>";
+                }
+                else if(column[j].nodeName == "HomePage") //url add hyperlink.
+                {
+                    html_text += "<td><a href = '" + column[j].firstChild.nodeValue + "'>";
+                    html_text += column[j].firstChild.nodeValue + "</a></td>";
+                }
+                else if(column[j].nodeName == "Logo") //show image.
+                {
+                    html_text += "<td><img src = '" + column[j].firstChild.nodeValue + "'></td>";
+                }
+                else
+                {
+                    html_text += "<td>" + column[j].firstChild.nodeValue + "</td>";
+                }
+            }
+        }
+        html_text += "</tr>";
+    }
+    html_text += "</table>";
+    html_text += "<noscript></bo" + "dy></html>"; //avoid displaying the USC disclaimer.
+}
+
+function xmlExist(url)    
+{
+    var http = new XMLHttpRequest();
+    http.open('GET', url, false);
+    http.send();
+    if (http.status==404)
+    {
+        window.alert("XML not found.")
+    }
+}
+        
+function viewXML(what)
+{
+    var URL = what.URL.value;
+    xmlExist(URL);
+    if (URL == "")
+    {
+        window.alert("Please enter an XML file");
+    }
+    function loadXML(url)       
+    {
+        if (window.XMLHttpRequest)
+        { // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        }
+        else
+        { // code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");  
+        }
+        xmlhttp.open("GET",url,false);
+        xmlhttp.send();
+        xmlDoc = xmlhttp.responseXML;
+        return xmlDoc;
+    }
+        
+    if (URL != "") // make sure url is not empty.
+    {
+        xmlDoc = loadXML(URL);               
+        if  (xmlDoc.documentElement.nodeName == "parsererror")
+        {
+            window.alert("Error in XML file"); //check XML OK or not           
+        }
+        else 
+        {
+            if (xmlDoc.getElementsByTagName("Row").length == 0) //no row means no company
+            {
+                window.alert("This XML file contains NO cable network companies.");
+            }
+            else
+            {
+                xmlDoc.onload = generateHTML(xmlDoc);
+                hWin = window.open("", "_blank", "scrollbars=yes", "height=600,width=1000");
+                hWin.document.write(html_text);  
+                hWin.document.close();
+            }
+        }    
+    }
+}
+</script>
+</head>
+<body>
+    <br><br><br><br><br>
+    <p align = center>Enter URL for Company List XML File</p>
+    <form name="myform" method="POST" id="location">
+         <p align= center><input type="text" name="URL" maxlength="255" size="50" value=""></p>
+         <p align= center><input type="button" name="submit" value="Submit Query" onclick="viewXML(this.form)"></p>
+    </form>
+<noscript></body>
+</html>

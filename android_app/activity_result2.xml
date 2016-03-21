@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    >
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.shaolun.homework9.ResultActivity">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="@string/details"
+        android:id="@+id/details"
+        android:layout_marginTop="5dp"
+        android:onClick="showDetail"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="@string/map"
+        android:id="@+id/map"
+        android:layout_marginTop="5dp"
+        android:layout_alignLeft="@+id/details"
+        android:layout_marginLeft="120dp"
+         />
+
+    <ImageView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/imageView2"
+        android:background="@drawable/fb_icon"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="300dp"
+        android:contentDescription=""
+        />
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+
+        android:id="@+id/imageView3"
+        android:layout_marginTop="28dp"
+        android:layout_below="@+id/map"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Summary,CO"
+        android:id="@+id/summ"
+        android:textColor="#000000"
+        android:textSize="25dp"
+        android:layout_below="@+id/imageView3"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="65"
+        android:textSize="50dp"
+        android:textColor="#818181"
+        android:id="@+id/textView5"
+        android:layout_marginTop="230dp"
+        android:layout_centerHorizontal="true"
+         />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:textSize="20dp"
+        android:id="@+id/textView6"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="310dp" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="360dp"
+        android:stretchColumns="2"
+        android:id="@+id/tableLayout">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Precipitation"
+                android:textSize="20dp"
+                android:id="@+id/textView101"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView201"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Chance of Rain"
+                android:textSize="20dp"
+                android:id="@+id/textView102"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView202"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Wind Speed"
+                android:textSize="20dp"
+                android:id="@+id/textView103"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView203"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Dew Point"
+                android:textSize="20dp"
+                android:id="@+id/textView104"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView204"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Humidity"
+                android:textSize="20dp"
+                android:id="@+id/textView105"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView205"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Visibility"
+                android:textSize="20dp"
+                android:id="@+id/textView106"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView206"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Sunrise"
+                android:textSize="20dp"
+                android:id="@+id/textView107"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView207"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Sunset"
+                android:textSize="20dp"
+                android:id="@+id/textView108"
+                android:layout_marginTop="0dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="N.A."
+                android:textSize="20dp"
+                android:id="@+id/textView208"
+                android:layout_gravity="right"
+                android:layout_column="2"
+                android:layout_marginTop="0dp" />
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="F"
+        android:id="@+id/textView4"
+        android:textColor="#818181"
+        android:layout_marginTop="233dp"
+        android:layout_marginLeft="202dp"
+        />
+
+
+</RelativeLayout>
+</ScrollView>
