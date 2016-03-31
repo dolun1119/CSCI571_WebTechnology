@@ -12,6 +12,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="http://openlayers.org/api/OpenLayers.js"></script>  
     <script src="bootstrap-3.3.5-dist/js/jquery-2.1.4.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
     
 <style>
 /*background-image*/    
@@ -19,11 +21,7 @@
     background: url("http://cs-server.usc.edu:19402/pic/bg.jpg") no-repeat  fixed;
     -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;}
 /*input form*/  
-    #section {background-color:rgba(0,0,0,0.15); margin: 0 auto; width: 80%; padding: 5px 10px 0px 10px;}
-/*input form text*/   
-    #addInput, #cityInput, #stateInput, #star {color: red;}
-/*input form text*/
-    .control-label, #radioInput, #power {color: white;} 
+    #section {background-color:rgba(0,0,0,0.15); margin: 0 auto; width: 80%; padding: 5px 10px 0px 10px; color: white;}
 /*tab style*/   
     #tabs {margin: 0 auto; width: 80%;} 
     .nav-tabs > li > a {background-color:#EEEEEE; color:#3071A9;}
@@ -75,43 +73,25 @@
 
 <script>
 //check input
-    function checkEmpty() {        
-        var errorAlert ="";
-        document.getElementById("addInput").innerHTML = "";
-        document.getElementById("cityInput").innerHTML = "";
-        document.getElementById("stateInput").innerHTML = "";
-        if (document.getElementsByName("address")[0].value != "") {
-            document.getElementsByName("address")[0].value = document.getElementsByName("address")[0].value.trim();   
-        }
-        if (document.getElementsByName("city")[0].value != "") {    
-            document.getElementsByName("city")[0].value = document.getElementsByName("city")[0].value.trim();
-        }
-        if (document.getElementsByName("address")[0].value == "") {
-            document.getElementById("addInput").innerHTML = "Please enter the street address";
-            errorAlert += "No address!\n\n";
-        }
-        if (document.getElementsByName("city")[0].value == "") {    
-            document.getElementById("cityInput").innerHTML = "Please enter the city";
-            errorAlert += "No City!\n\n";
-        }
-        if (document.form.state.value == "selectyourstate") {
-            document.getElementById("stateInput").innerHTML = "Please select a state";
-            errorAlert += "No state!\n\n";
-        }
-        if (errorAlert =="") {
+
+    
+      $(document).ready(function() {
+        $("#searchForm").validate({
+          submitHandler: function(form) {
             requestJson();
-            return true;
-        }
-        else {return false;}
-    }
+          }
+        }); 
+	});
+    
+    
 //refresh data    
     function refresh() {
-        document.getElementById("addInput").innerHTML = "";
-        document.getElementById("cityInput").innerHTML = "";
-        document.getElementById("stateInput").innerHTML = "";
+        document.getElementById("addrAlert").innerHTML = "<label class='error' for='address' style='display: none;'></label>";
+        document.getElementById("cityAlert").innerHTML = "<label class='error' for='city' style='display: none;'></label>";
+        document.getElementById("stateAlert").innerHTML = "<label class='error' for='myselect' style='display: none;'>";
         document.getElementsByName("address")[0].value = "";
         document.getElementsByName("city")[0].value = "";
-        document.form.state.value = "selectyourstate";
+        document.form.state.value = "";
         document.getElementById("temp1").checked = true;      
         document.getElementById("qoo").innerHTML = "";
     }    
@@ -576,20 +556,25 @@ function fbshare(obj){
 <h2 align="center">Forecast Search</h2><br>
 <div id="col-md-12">
 <div id="section">
-<form name="form" class="form-inline">
+<form id="searchForm" name="form" class="form-inline" method="GET" action="" novalidate="novalidate">
     <div class="form-group" style="vertical-align: top; margin-top: 5px;" >
-        <label for="name" class="control-label">Street Address: <span id="star">*</span></label><br>
-        <input type="text" size="38" name="address" class="form-control" id="addr" placeholder="Enter street address"><br><span id="addInput"></span>
+        <b>Street Address: </b><font color="red">*</font><br>
+        <input type="text" size="38" name="address" class="form-control valid" placeholder="Enter street address" data-msg-required="Please enter the street address" data-rule-required="true" value=""><br>
+        <font color="red"><div id="addrAlert">
+        <label class="error" for="address" style="display: none;"></label>
+        </div></font>
     </div>
     <div class="form-group" style="vertical-align: top; margin-top: 5px;">
-        <label for="name" class="control-label">City: <span id="star">*</span></label><br>
-        <input type="text" size="20" name="city" class="form-control" id="city" placeholder="Enter the city name">
-        <br><span id="cityInput"></span>
+        <b>City: </b><font color="red">*</font><br>
+        <input type="text" size="20" name="city" class="form-control  valid" placeholder="Enter the city name" data-msg-required="Please enter the city" data-rule-required="true" value=""><br>
+        <font color="red"><div id="cityAlert">
+        <label class="error" for="city" style="display: none;"></label>
+        </div></font>
     </div>
     <div class="form-group" style="vertical-align: top; margin-top: 5px;">
-        <label for="name" class="control-label">State: <span id="star">*</span></label><br>
-        <select id="myselect" name="state" class="form-control">
-            <option value="selectyourstate">Select your state...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+        <b>State: </b><font color="red">*</font><br>
+        <select id="myselect" name="state" class="form-control error" data-msg-required="Please select the state" data-rule-required="true">
+            <option value="">Select your state...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
             <option value="AL">Alabama</option>
             <option value="AK">Alaska</option>
             <option value="AZ">Arizona</option>
@@ -640,16 +625,18 @@ function fbshare(obj){
             <option value="WV">West Virginia</option>
             <option value="WI">Wisconsin</option>
             <option value="WY">Wyoming</option>
-        </select>
-        <br><span id="stateInput"></span>
+        </select><br>
+        <font color="red">
+        <div id="stateAlert"><label class="error" for="myselect" style="display: none;"></label>
+        </div></font>
     </div>&nbsp;
     <div class="form-group" style="vertical-align: top; margin-top: 5px;">
-        <label class="control-label">Degree: <span id="star">*</span></label><br>
+        <b>Degree: </b><font color="red">*</font></label><br>
         <input type="radio" name="temp" id="temp1" value="fahrenheit" checked><span id="radioInput">&nbsp;&nbsp;Fahrenheit&nbsp;</span>
         <input type="radio" name="temp" id="temp2" value="celsius"><span id="radioInput">&nbsp;&nbsp;Celsius&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     </div>
     <div class="form-group" style="vertical-align: top; margin-top: 5px;" align="right"><br>
-    <button style="width:85px;" type="button" class="btn btn-primary" name="submit" onclick="return checkEmpty()">
+    <button style="width:85px;" class="btn btn-primary" type="submit">
     <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
     </button>
     <button style="width:85px;" type="button" class="btn btn-default" onclick="refresh()">
@@ -657,7 +644,7 @@ function fbshare(obj){
     </button>
     <br><br>
     <div style="vertical-align: top;">
-    <span id="power">Powered by: </span><a href="http://forecast.io/">
+    Powered by: <a href="http://forecast.io/">
     <img src="http://cs-server.usc.edu:19402/pic/forecast_logo.png" alt="forecast.io" title="forecast.io" id="logo" width="90">
     </a>&nbsp;
     </div>
